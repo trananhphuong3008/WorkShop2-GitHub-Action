@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	</head>
+	<body>
+    <form method="post" action="Paging.php" id="form">
+
+    <h2>Đăng ký thành viên</h2>
+
+    ID: <input type="text" id="id" name="id" value="" required>
+
+    Tên: <input type="text"  id="username"  name="username" value="" required/>
+
+    Phone: <input type="text"  id="phone" name="phone" value="" required/>
+
+    Đỉa Chỉ: <input type="text"  id="address" name="address" value="" required/>
+
+    <button type="submit" id="dangki" name="dangky" >Đăng Ký </button>
+
+
+    </form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+function doFunction() {
+$("#dangki").on("click", function(e){
+	var id = $("#id").val();
+
+	var username = $("#username").val();
+	var phone = $("#phone").val();
+	var address = $("#address").val();
+	var error = $("#error");
+	var ok = $("#ok");
+
+	// resert 2 thẻ div thông báo trở về rỗng mỗi khi click nút đăng nhập
+	error.html("");
+	ok.html("");
+
+	// Kiểm tra nếu username rỗng thì báo lỗi
+	if (id == "") {
+		error.html("Tên đăng nhập không được để trống");
+		return false;
+	}
+	// Kiểm tra nếu password rỗng thì báo lỗi
+	if (username == "") {
+		error.html("Mật khẩu không được để trống");
+		return false;
+	}
+console.log();
+	// Chạy ajax gửi thông tin username và password về server submit.php
+	// để kiểm tra thông tin đăng nhập hợp lệ hay chưa
+	$.ajax({
+		url: "Paging.php",
+		method: "POST",
+		data: { id : id, username : username, phone: phone , address: address },
+		success : function(response){
+			if (response == "1") {
+				ok.html("Đăng nhập thành công");
+			}else{
+				error.html("Tên đăng nhập hoặc mật khẩu không chính xác !");
+			}
+		}
+	});
+	});
+}
+
+</script>
+<?php
+
+$conn = mysqli_connect('localhost', 'root', '', 'customer') or die ('Không thể kết nối tới database');
+if(isset($_POST['dangky'])){
+$id = trim($_POST['id']);
+$name = trim($_POST['username']);
+$phone = trim($_POST['phone']);
+$address = trim($_POST['address']);
+$sql = "SELECT * FROM customer WHERE id = '$id'";
+
+// Thực thi câu truy vấn
+$result = mysqli_query($conn, $sql);
+
+// Nếu kết quả trả về lớn hơn 1 thì nghĩa là username hoặc email đã tồn tại trong CSDL
+if (mysqli_num_rows($result) > 0)
+{
+echo '<script language="javascript">alert("Bị trùng id!"); window.location="Paging.php";</script>';
+
+// Dừng chương trình
+die ();
+}
+else {
+$sql = "INSERT INTO customer (id, name, phone, address) VALUES ('$id','$name','$phone','$address')";
+echo 'Insert Success '."<br/>";
+
+
+if (mysqli_query($conn, $sql)){
+echo "ID: ".$_POST['id']."<br/>";
+echo "name: " .$_POST['username']."<br/>";
+echo "Phone: ".$_POST['phone']."<br/>";
+echo "address: ".$_POST['address']."<br/>";
+}
+else {
+echo '<script language="javascript">alert("Có lỗi trong quá trình xử lý"); window.location="Paging.php";</script>';
+}
+}
+}
+
+//Bước 1:TÌM TỔNG SỐ RECORDS
+
+?>
+
+
+
+
+
+</body>
+</html>
